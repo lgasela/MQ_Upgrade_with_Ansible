@@ -1,0 +1,95 @@
+---
+
+- name: MQ Upgrade Playbook
+  connection: local
+  gather_facts: true
+  hosts: all
+  vars_prompt:
+    - name: "mqBaseFiles"
+      prompt: "Enter your path to MQ Base install files"
+      private: no
+
+    - name: "mqFixpackFiles"
+      prompt: "Enter your path to MQ Fixpack install files"
+      private: no
+  tasks:
+
+    - name: Display the config
+      debug:
+        msg: "The hostname is {{ ansible_hostname }}"
+
+    - name: Distribution
+      debug:
+        msg: "OS is {{ ansible_distribution }}"
+
+    - name: Uninstall Current MQ software
+      shell: rpm -ev `rpm -qa | grep MQSeries`
+      args:
+      register: result
+
+    - name: Accept License
+      shell: "{{ mqBaseFiles }}/mqlicense.sh -accept"
+      register: result
+
+    - name: Install MQSeriesRuntime Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesRuntime*
+      args:
+      register: result
+
+    - name: Install MQSeriesJRE Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesJRE*
+      args:
+      register: result
+
+    - name: Install MQSeriesJava Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesJava*
+      args:
+      register: result
+
+    - name: Install MQSeriesGSKit Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesGSKit*
+      args:
+      register: result
+
+    - name: Install MQSeriesServer Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesServer*
+      args:
+      register: result
+
+    - name: Install MQSeriesWeb Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesWeb*
+      args:
+      register: result
+
+    - name: Install MQSeriesAMQP Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesAMQP*
+      args:
+      register: result
+
+    - name: Install MQSeriesClient Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesClient*
+      args:
+      register: result
+
+    - name: Install MQSeriesSamples Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesSamples*
+      args:
+      register: result
+
+    - name: Install MQSeriesSDK Base
+      shell: rpm -ivh "{{ mqBaseFiles }}"/MQSeriesSDK*
+      args:
+      register: result
+
+    - name: Display MQ Version
+      shell: /opt/mqm/bin/dspmqver
+      register: result
+
+    - name: Install all 9.4.0.15 fixpacks
+      shell: rpm -Uvh "{{ mqFixpackFiles }}"/MQSeries*
+      args:
+      register: result
+
+    - name: Display MQ Version
+      shell: /opt/mqm/bin/dspmqver
+      register: result
